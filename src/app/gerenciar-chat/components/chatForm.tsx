@@ -2,10 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Flex, Input, Switch, Button, Checkbox, Form, message } from 'antd';
+import { Row, Col, Flex, Input, Switch, Button, Checkbox, Form, message, Space } from 'antd';
 import type { FormProps } from 'antd';
 import { Chat, chatApi } from '@/services/chatService';
 import { useMessage } from '@/components/messageContext/messageContext';
+import ChatFileForm from './chatFileForm';
 
 interface ChatFormProps {
     edit?: boolean;
@@ -121,6 +122,12 @@ export default function ChatForm({ edit, chat }: ChatFormProps) {
                 </Col>
             </Row>
 
+            {edit && (
+                <Row gutter={[16, 24]}>
+                    <ChatFileForm />
+                </Row>
+            )}
+
             <Row gutter={[16, 24]}>
                 <Col xs={24} sm={24} md={12} lg={8}>
                     <Form.Item>
@@ -131,6 +138,6 @@ export default function ChatForm({ edit, chat }: ChatFormProps) {
                 </Col>
             </Row>
 
-        </Form>
+        </Form >
     );
 }
