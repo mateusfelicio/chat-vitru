@@ -1,16 +1,14 @@
 "use client";
 
-import ChatForm from "../components/chatForm"
+import ChatForm from "../components/chatForm";
+import Title from "antd/es/typography/Title";
 
 export default function CreateChat() {
     return (
         <div>
-            <h1>Criar Chat</h1>
-            <hr />
-            <br/>
-            <br/>
-            <ChatForm />
+            <Title level={3} style={{marginBottom: 24}} >Criar Chat</Title>
 
+            <ChatForm />
         </div>
     );
 }

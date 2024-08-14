@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Table, Tag, Layout, Menu, Card, Col, Row, Badge, Modal } from 'antd';
+import { Button, Space, Table, Tag, Layout, Menu, Card, Col, Row, Badge, Modal, Flex } from 'antd';
 import type { TableProps } from 'antd';
+import Title from "antd/es/typography/Title";
 import Link from 'next/link';
 import { Chat, chatApi } from '@/services/chatService';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { useMessage } from '@/components/messageContext/messageContext';
+import { useMessage } from '@/components/messageContext';
 
 
 export default function GerenciarChat() {
@@ -15,13 +16,12 @@ export default function GerenciarChat() {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: (text) => <a>{text}</a>,
+            width: '8%',
         },
         {
             title: 'Título',
             dataIndex: 'title',
             key: 'title',
-            render: (text) => <a>{text}</a>,
         },
         {
             title: 'Descrição',
@@ -32,6 +32,7 @@ export default function GerenciarChat() {
             title: 'Ativo',
             dataIndex: 'active',
             key: 'active',
+            width: '10%',
             render: (_, record) => (
                 record.active ? <Badge status="success" text="Ativo" /> : <Badge status="error" text="Inativo" />
             ),
@@ -39,6 +40,7 @@ export default function GerenciarChat() {
         {
             title: 'Ação',
             key: 'action',
+            width: '12%',
             render: (_, record) => (
                 <Space size="middle">
                     <Link href={`/gerenciar-chat/edit/${record.id}`} passHref legacyBehavior>
@@ -52,16 +54,16 @@ export default function GerenciarChat() {
         },
     ];
 
-    function deleteChat(id: number){
+    function deleteChat(id: number) {
         chatApi.delete(id)
-        .then(() => {
-            showMessage('Chat excluído com sucesso!', 'success');
-            getData();
-        })
-        .catch((error) => {
-            console.log("Erro ao excluir chat", error);
-            showMessage('Erro ao excluir chat!', 'error');
-        });
+            .then(() => {
+                showMessage('Chat excluído com sucesso!', 'success');
+                getData();
+            })
+            .catch((error) => {
+                console.log("Erro ao excluir chat", error);
+                showMessage('Erro ao excluir chat!', 'error');
+            });
     }
 
     const [chats, setChats] = useState<Chat[]>([]);
@@ -90,14 +92,22 @@ export default function GerenciarChat() {
     return (
         <div>
             {contextHolder}
-            <Row gutter={[16, 8]}>
-                <Col span={24}>
-                    <Link href="/gerenciar-chat/create" passHref legacyBehavior>
-                        <Button>Novo Chat</Button>
-                    </Link>
-                    <Table columns={columns} dataSource={chats} />
-                </Col>
-            </Row>
+
+            <Title level={3} style={{ marginBottom: 24 }} >Gerenciar Chat</Title>
+
+            {/* <Flex gap="middle" vertical style={{ width: "100%" }} justify={"center"}> */}
+
+                <div className='flex justify-center'>
+                    <div style={{ width: "100vw", maxWidth: "1100px"}}className='max-w-4xl'>
+                        <Link href="/gerenciar-chat/create" passHref legacyBehavior>
+                            <Button type={"primary"} style={{ marginBottom: "12px" }}>Novo Chat</Button>
+                        </Link>
+                        <Table columns={columns} dataSource={chats} />
+                    </div>
+
+                </div>
+
+            {/* </Flex> */}
         </div>
     );
 }

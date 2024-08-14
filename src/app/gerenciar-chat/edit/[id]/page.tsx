@@ -3,8 +3,9 @@
 import { Chat, chatApi } from '@/services/chatService';
 import ChatForm from "../../components/chatForm"
 import { useEffect, useState } from 'react';
-import { useMessage } from '@/components/messageContext/messageContext';
+import { useMessage } from '@/components/messageContext';
 import { useRouter } from 'next/navigation'
+import Title from "antd/es/typography/Title";
 
 
 export default function EditChat({ params }: { params: { id: number } }) {
@@ -35,10 +36,8 @@ export default function EditChat({ params }: { params: { id: number } }) {
 
     return (
         <div>
-            <h1>Editar Chat</h1>
-            <hr />
-            <br />
-            <br />
+            <Title level={3} style={{marginBottom: 24}} >Editar Chat</Title>
+
             <ChatForm edit={true} chat={chat} />
         </div>
     );

@@ -6,7 +6,7 @@ import { Divider, Col, Button, message, Upload, Spin, Flex, Row } from 'antd';
 import type { UploadProps } from 'antd';
 import { chatKnowledgeApi } from '@/services/chatKnowledgeService';
 import { UploadOutlined } from '@ant-design/icons';
-import { useMessage } from '@/components/messageContext/messageContext';
+import { useMessage } from '@/components/messageContext';
 
 const formStyle: React.CSSProperties = {
   maxWidth: 'none'

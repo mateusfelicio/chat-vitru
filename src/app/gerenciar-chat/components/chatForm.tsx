@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Flex, Input, Switch, Button, Checkbox, Form, message, Space } from 'antd';
 import type { FormProps } from 'antd';
 import { Chat, chatApi } from '@/services/chatService';
-import { useMessage } from '@/components/messageContext/messageContext';
+import { useMessage } from '@/components/messageContext';
 import ChatFileForm from './chatFileForm';
 
 interface ChatFormProps {
