@@ -17,5 +17,5 @@ export const chatKnowledgeApi = {
     getAll: (): Promise<ChatKnowledge[]> => requests.get(apiUrl),
     create: (post: ChatKnowledge): Promise<ChatKnowledge> =>
         requests.post(apiUrl, post),
-    delete: (id: number): Promise<void> => requests.delete(`${apiUrl}/${id}`),
+    delete: (id: number): Promise<void> => requests.delete(`${apiUrl}?id=${id}`),
 };

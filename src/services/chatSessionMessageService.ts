@@ -8,14 +8,12 @@ export interface ChatSessionMessage {
     message: string;
     type: 'SYSTEM' | 'ASSISTANT' | 'USER';
     chat_session_message_response_id: number;
+    //feedback: 'positive' | 'negative';
+    //feedback-description: text;
 }
 
-export const chatApi = {
-    getAll: (): Promise<ChatSessionMessage[]> => requests.get(apiUrl),
-    getDetail: (id: number): Promise<ChatSessionMessage> => requests.get(`${apiUrl}/${id}`),
+export const chatSessionMessageApi = {
+    getAll: (chatSessionId: number, limit?: number): Promise<ChatSessionMessage[]> => requests.get(`${apiUrl}?chat_session_id=${chatSessionId}`),
     create: (post: ChatSessionMessage): Promise<ChatSessionMessage> =>
         requests.post(apiUrl, post),
-    update: (post: ChatSessionMessage, id: number): Promise<ChatSessionMessage> =>
-        requests.put(`${apiUrl}/${id}`, post),
-    delete: (id: number): Promise<void> => requests.delete(`${apiUrl}/${id}`),
 };

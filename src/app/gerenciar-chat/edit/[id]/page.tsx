@@ -21,11 +21,9 @@ export default function EditChat({ params }: { params: { id: number } }) {
         chatApi.getDetail(params.id)
             .then(result => {
                 setChat(result);
-                console.log(result);
             })
             .catch(
                 () => {
-                    console.log('Erro ao buscar Chats!');
                     showMessage('Erro ao buscar Chat!', 'error');
                     setTimeout(() => {
                         router.push('/gerenciar-chat');

@@ -24,13 +24,13 @@ const colors = [
     { color: "bg-cyan-500", colorHover: "hover:bg-cyan-600" },
 ];
 
-export default function ChatList({ chats }: ChatListProps) {  // Desestruturação correta das props
+export default function ChatList({ chats }: ChatListProps) {
     const listItems = chats.map((chat, index) => {
         const colorIndex = index % colors.length;
         const { color, colorHover } = colors[colorIndex];
 
         return (
-            <Link href={"/chat/chat.id"} passHref legacyBehavior>
+            <Link href={`/chat/${chat.id}`} passHref legacyBehavior>
                 <div className={`p-4 ${color} bg-opacity-30 shadow-lg rounded-lg ${colorHover} hover:bg-opacity-40 cursor-pointer transition-all duration-300`}>
                     <h2 className="text-xl font-semibold mb-2">{chat.title}</h2>
                     <p className="text-gray-600">{chat.description}</p>

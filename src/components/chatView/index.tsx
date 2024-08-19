@@ -1,61 +1,122 @@
-import React, { CSSProperties, useState } from 'react';
-import { format } from 'date-fns';
-// import { Button } from "@material-tailwind/react";
+import React, { CSSProperties, useEffect, useRef, useState } from 'react';
+import ChatLoading from '@/components/chatLoading'
+import TypingMessage from '@/components/typingMessage'
 
-interface ChatMessage {
-    id: number;
+export interface ChatMessage {
+    id?: number;
     role: 'ai' | 'user';
     text: string;
+    loading?: boolean;
+    typing?: boolean;
     date: Date;
 }
 
 interface ChatProps {
     title: string;
     history: ChatMessage[];
+    sendAndReceiveMessage: (message: string) => Promise<ChatMessage>;
+    fetchOlderMessages: (beforeMessageId: number) => Promise<ChatMessage[]>;
     style?: CSSProperties | undefined;
 }
 
-export default function ChatView({ title, history, style }: ChatProps) {
+export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMessages, style }: ChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>(history);
     const [inputNewMessage, setInputNewMessage] = useState<string>('');
+    const [loadingOlderMessages, setLoadingOlderMessages] = useState<boolean>(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+    const loadingMessage: ChatMessage = {
+        role: 'ai',
+        text: '',
+        loading: true,
+        date: new Date(),
+    }
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const handleScroll = async () => {
+        const container = messagesContainerRef.current;
+
+        if (container && container.scrollTop === 0 && !loadingOlderMessages) {
+
+            const oldestMessage: ChatMessage = messages[0];
+            if (oldestMessage) {
+                setLoadingOlderMessages(true);
+
+                const olderMessages = await fetchOlderMessages(oldestMessage.id);
+
+                setMessages(prevMessages => {
+                    const filteredMessages = olderMessages.filter(
+                        (msg) => !prevMessages.some((loadedMsg) => loadedMsg.id === msg.id)
+                    );
+
+                    const scrollHeightBefore = container.scrollHeight;
+
+                    const updatedMessages = [...filteredMessages, ...prevMessages];
+
+                    setTimeout(() => {
+                        if (container) {
+                            const scrollHeightAfter = container.scrollHeight;
+                            container.scrollTop = scrollHeightAfter - scrollHeightBefore;
+                        }
+                    }, 0);
+
+                    return updatedMessages;
+                });
+
+                setLoadingOlderMessages(false);
+            }
+        }
+    };
 
     const handleSendMessage = () => {
         if (inputNewMessage.trim() === '') return;
 
         const newChatMessage: ChatMessage = {
-            id: 999,
             role: 'user',
             text: inputNewMessage,
             date: new Date(),
         };
 
-        setMessages([...messages, newChatMessage]);
+        setMessages(prevMessages => {
+            const updatedMessages = [...prevMessages, newChatMessage, loadingMessage];
 
-        // Aqui você pode adicionar a lógica para enviar a mensagem para o assistente AI e receber uma resposta
-        const aiResponse: ChatMessage = {
-            id: 999,
-            role: 'ai',
-            text: 'Esta é uma resposta automatizada.',
-            date: new Date(),
-        };
+            sendAndReceiveMessage(inputNewMessage)
+                .then((result) => {
+                    setMessages(prevMessages => updatedMessages.slice(0, -1).concat({
+                        ...result,
+                        typing: true
+                    }));
+                })
+                .catch((error) => {
+                    console.error("Error sending message:", error);
+                    setMessages(prevMessages => updatedMessages.slice(0, -1));
+                });
 
-        setMessages((prevMessages) => [...prevMessages, aiResponse]);
+            return updatedMessages;
+        });
+
         setInputNewMessage('');
     };
 
-    function sendMessageToApi(message: string) {
-
-        return 
-    }
-
-    function convertResponseToChatMessage(){
-
-    }
+    const handleKeyPress = (e: any) => {
+        if (e.key === "Enter") {
+            handleSendMessage();
+        }
+    };
 
     return (
         <div style={style} className="bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
-            
-            <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
+
+            <div
+                ref={messagesContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-8 bg-gray-50"
+            >
+
                 <div className="space-y-4">
                     {messages.map((message, index) => (
                         <div
@@ -76,11 +137,15 @@ export default function ChatView({ title, history, style }: ChatProps) {
                                     : 'bg-blue-500 text-white'
                                     } p-4 rounded-lg max-w-2xl shadow-md`}
                             >
-                                <p>{message.text}</p>
+                                {message.loading ? <ChatLoading /> :
+                                    message.typing ? (<TypingMessage text={message.text} />) : <p>{message.text}</p>
+                                }
                             </div>
                         </div>
                     ))}
                 </div>
+
+                <div ref={messagesEndRef} />
             </div>
 
             <div className="bg-white p-4 border-t flex items-center">
@@ -90,6 +155,7 @@ export default function ChatView({ title, history, style }: ChatProps) {
                     placeholder="Digite sua mensagem..."
                     value={inputNewMessage}
                     onChange={(e) => setInputNewMessage(e.target.value)}
+                    onKeyDown={handleKeyPress}
                 />
                 <button
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg ml-2"

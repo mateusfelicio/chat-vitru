@@ -13,7 +13,7 @@ export default function Chats() {
     }, []);
 
     function getData() {
-        chatApi.getAll().then(result => { setChats(result);}).catch(() => console.log('Erro ao buscar Chats!'));
+        chatApi.getAll().then(result => { setChats(result)}).catch(() => console.log('Erro ao buscar Chats!'));
     }
 
     return (
