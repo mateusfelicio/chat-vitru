@@ -1,6 +1,7 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import ChatLoading from '@/components/chatLoading'
-import TypingMessage from '@/components/typingMessage'
+import ChatLoading from '@/components/chatLoading';
+import TypingMessage from '@/components/typingMessage';
+import Feedback from './feedback';
 
 export interface ChatMessage {
     id?: number;
@@ -9,22 +10,28 @@ export interface ChatMessage {
     loading?: boolean;
     typing?: boolean;
     date: Date;
+    feedback?: 'positive' | 'negative'
 }
 
-interface ChatProps {
+export interface ChatProps {
     title: string;
     history: ChatMessage[];
     sendAndReceiveMessage: (message: string) => Promise<ChatMessage>;
     fetchOlderMessages: (beforeMessageId: number) => Promise<ChatMessage[]>;
     style?: CSSProperties | undefined;
+    feedbackButtons?: {
+        active: boolean,
+        sendFeedback: (messageId: number, type: "positive" | "negative", description?: string,) => Promise<any>;
+    };
 }
 
-export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMessages, style }: ChatProps) {
+export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMessages, style, feedbackButtons }: ChatProps) {
     const [messages, setMessages] = useState<ChatMessage[]>(history);
     const [inputNewMessage, setInputNewMessage] = useState<string>('');
     const [loadingOlderMessages, setLoadingOlderMessages] = useState<boolean>(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    let olderMessagesLoaded = useRef<boolean>(false);
 
     const loadingMessage: ChatMessage = {
         role: 'ai',
@@ -34,7 +41,10 @@ export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMess
     }
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (!olderMessagesLoaded.current) {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+        olderMessagesLoaded.current = false;
     }, [messages]);
 
     const handleScroll = async () => {
@@ -47,6 +57,9 @@ export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMess
                 setLoadingOlderMessages(true);
 
                 const olderMessages = await fetchOlderMessages(oldestMessage.id);
+                if (olderMessages.length == 0) {
+                    return
+                }
 
                 setMessages(prevMessages => {
                     const filteredMessages = olderMessages.filter(
@@ -55,6 +68,7 @@ export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMess
 
                     const scrollHeightBefore = container.scrollHeight;
 
+                    olderMessagesLoaded.current = true;
                     const updatedMessages = [...filteredMessages, ...prevMessages];
 
                     setTimeout(() => {
@@ -131,15 +145,27 @@ export function ChatView({ title, history, sendAndReceiveMessage, fetchOlderMess
                                     className="w-10 h-10 rounded-full mr-3"
                                 />
                             )}
-                            <div
+                            <div style={
+                                message.role === 'ai' && feedbackButtons ? { paddingBottom: '9px' } : {}
+                            }
                                 className={`${message.role === 'ai'
                                     ? 'bg-white text-gray-900'
                                     : 'bg-blue-500 text-white'
                                     } p-4 rounded-lg max-w-2xl shadow-md`}
                             >
-                                {message.loading ? <ChatLoading /> :
-                                    message.typing ? (<TypingMessage text={message.text} />) : <p>{message.text}</p>
-                                }
+                                {message.loading ? (
+                                    <ChatLoading />
+                                ) : message.typing ? (
+                                    <>
+                                    <TypingMessage text={message.text} />
+                                    {(message.role === 'ai' && feedbackButtons) && <Feedback messageId={message.id} feedback={message.feedback} sendFeedback={feedbackButtons.sendFeedback} />}
+                                    </>
+                                ) : (
+                                    <>
+                                        <p>{message.text}</p>
+                                        {(message.role === 'ai' && feedbackButtons) && <Feedback messageId={message.id} feedback={message.feedback} sendFeedback={feedbackButtons.sendFeedback} />}
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}

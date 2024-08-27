@@ -6,15 +6,14 @@ import Title from "antd/es/typography/Title";
 import { ChatSessionMessage, chatSessionMessageApi } from '@/services/chatSessionMessageService';
 import { Chat, chatApi } from '@/services/chatService';
 import { useEffect, useState } from "react";
-import { resolve } from "path";
-import { set } from "date-fns";
 
-export default function ShowChat({ params }: { params: { id: number } }) {
+
+export default function ShowChat(chatId: number) {
     const [chat, setChat] = useState<Chat>();
     const [history, setHistory] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const title = 'Chat 1';
+    console.log(chat, history);
 
     useEffect(() => {
         getHistory();
@@ -22,11 +21,11 @@ export default function ShowChat({ params }: { params: { id: number } }) {
     }, []);
 
     function getChat() {
-        chatApi.getDetail(params.id).then(result => setChat(result))
+        chatApi.getDetail(chatId).then(result => setChat(result))
     }
 
     function getHistory() {
-        chatSessionMessageApi.getAll(params.id)
+        chatSessionMessageApi.getAll(chatId)
             .then(result => {
                 const messageFormated: ChatMessage[] = result.map((value) => {
                     return {
