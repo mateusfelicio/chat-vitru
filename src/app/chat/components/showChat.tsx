@@ -8,7 +8,7 @@ import { Chat, chatApi } from '@/services/chatService';
 import { useEffect, useState } from "react";
 
 
-export default function ShowChat(chatId: number) {
+export default function ShowChat({chatId}: {chatId: number}) {
     const [chat, setChat] = useState<Chat>();
     const [history, setHistory] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
