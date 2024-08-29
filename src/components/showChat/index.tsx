@@ -8,7 +8,7 @@ import { Chat, chatApi } from '@/services/chatService';
 import { useEffect, useState } from "react";
 
 
-export default function ShowChat({chatId}: {chatId: number, type: 'default | fullsize'}) {
+export default function ShowChat({ chatId, type }: { chatId: number, type: 'default' | 'fullsize' }) {
     const [chat, setChat] = useState<Chat>();
     const [history, setHistory] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -63,15 +63,15 @@ export default function ShowChat({chatId}: {chatId: number, type: 'default | ful
 
     //TODO Fazer com que esse método seja passado para o ChatView e posteriormente para o feedback
     const sendFeedback = (messageId: number, type: "positive" | "negative", description?: string | undefined): Promise<ChatSessionMessage> => {
-        const createFeedbackParams: Pick<ChatSessionMessage, 'id' | 'feedback' | 'feedback_description'> = { 
-            id: messageId, 
-            feedback: type, 
-            feedback_description: description 
+        const createFeedbackParams: Pick<ChatSessionMessage, 'id' | 'feedback' | 'feedback_description'> = {
+            id: messageId,
+            feedback: type,
+            feedback_description: description
         };
         return chatSessionMessageApi.createFeedback(createFeedbackParams);
     };
 
-    
+
 
     const getOldMessages = (messageId: number): Promise<ChatMessage[]> => {
         return new Promise((resolve, reject) => {
@@ -114,10 +114,25 @@ export default function ShowChat({chatId}: {chatId: number, type: 'default | ful
         borderRadius: 4,
     };
 
+    const styles = {
+        "default": {
+            minWidth: "450px",
+            maxWidth: "1200px",
+            height: "80vh",
+            width: "100vw"
+        },
+        "fullsize": {
+            height: "100vh",
+            width: "100vw"
+        }
+    }
+
 
     return (
         <div>
-            <Title level={3} style={{ marginBottom: 24 }} >Chat View | <span className="text-blue-500">{chat?.title}</span></Title>
+            {type === "default" && (
+                <Title level={3} style={{ marginBottom: 24 }} >Chat View | <span className="text-blue-500">{chat?.title}</span></Title>
+            )}
 
             {loading ? (
                 <Flex style={{ height: '200px' }} justify={'center'} align={'center'}>
@@ -127,12 +142,7 @@ export default function ShowChat({chatId}: {chatId: number, type: 'default | ful
                 </Flex>
             ) : (
                 <Flex justify={'center'}>
-                    <ChatView style={{
-                        minWidth: "450px",
-                        maxWidth: "1200px",
-                        height: "80vh",
-                        width: "100vw"
-                    }} title={'teste'} history={history} sendAndReceiveMessage={sendMessage} fetchOlderMessages={getOldMessages} feedbackButtons={{ active:true, sendFeedback:{sendFeedback} }} />
+                    <ChatView style={styles[type]} title={'teste'} history={history} sendAndReceiveMessage={sendMessage} fetchOlderMessages={getOldMessages} feedbackButtons={{ active: true, sendFeedback: { sendFeedback } }} />
                 </Flex>
             )}
         </div>

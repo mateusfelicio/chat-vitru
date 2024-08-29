@@ -6,7 +6,7 @@ import Title from "antd/es/typography/Title";
 import { ChatSessionMessage, chatSessionMessageApi } from '@/services/chatSessionMessageService';
 import { Chat, chatApi } from '@/services/chatService';
 import { useEffect, useState } from "react";
-import ShowChat from "../components/showChat";
+import ShowChat from "@/components/showChat";
 
 export default function ChatPage({ params }: { params: { id: number } }) {
 
@@ -14,7 +14,7 @@ export default function ChatPage({ params }: { params: { id: number } }) {
 
     return (
         <>
-            <ShowChat chatId={chatId}/>
+            <ShowChat chatId={chatId} type={'default'}/>
         </>
     );
 }
